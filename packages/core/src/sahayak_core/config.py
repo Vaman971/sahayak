@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import SecretStr
@@ -13,6 +14,8 @@ class Settings(BaseSettings):
     env: Literal["dev", "test", "prod"] = "dev"
     log_level: str = "INFO"
     log_json: bool = False
+    record_calls: bool = False
+    recordings_dir: Path = Path("recordings")
 
     sarvam_api_key: SecretStr | None = None
     redis_url: str = "redis://localhost:6379/0"

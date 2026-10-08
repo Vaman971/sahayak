@@ -1,4 +1,4 @@
-.PHONY: install fmt lint typecheck test check run infra-up infra-down
+.PHONY: install fmt lint typecheck test check run client infra-up infra-down
 
 SRC := packages/core/src services/voice-gateway/src
 
@@ -24,6 +24,9 @@ check: lint typecheck test
 
 run:
 	uv run uvicorn voice_gateway.main:create_app --factory --reload --port 8000
+
+client:
+	uv run python -m http.server 5173 --directory client --bind 127.0.0.1
 
 infra-up:
 	docker compose up -d --wait
