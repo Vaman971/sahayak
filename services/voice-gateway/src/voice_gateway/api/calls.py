@@ -19,7 +19,7 @@ from voice_gateway.api.protocol import (
 )
 from voice_gateway.audio.format import PCM16_16K_MONO
 from voice_gateway.audio.framing import FrameAssembler
-from voice_gateway.audio.pcm import dbfs
+from voice_gateway.audio.meter import LevelMeter
 from voice_gateway.audio.recorder import WavRecorder
 
 router = APIRouter()
@@ -81,7 +81,8 @@ async def call_ws(ws: WebSocket) -> None:
         assembler = FrameAssembler(fmt.frame_bytes)
         recorder = WavRecorder(fmt) if settings.record_calls else None
         frames = 0
-        level_sum = 0.0
+        # level_sum = 0.0
+        meter = LevelMeter()
         t0 = time.monotonic()
 
         await ws.send_text(ReadyMsg(call_id=call_id, frame_bytes=fmt.frame_bytes).model_dump_json())
@@ -97,17 +98,20 @@ async def call_ws(ws: WebSocket) -> None:
                 if data is not None:
                     for frame in assembler.push(data):
                         frames += 1
-                        level_sum += dbfs(frame)
+                        meter.add(frame)
                         if recorder is not None:
                             recorder.write(frame)
                         await ws.send_bytes(frame)  # echo
                         if frames % METER_EVERY_FRAMES == 0:
+                            s = meter.snapshot()
                             log.debug(
                                 "audio.level",
-                                dbfs=round(level_sum / METER_EVERY_FRAMES, 1),
                                 audio_s=frames * fmt.frame_ms / 1000,
+                                rms_dbfs=s.rms_dbfs,
+                                peak_dbfs=s.peak_dbfs,
+                                clipped=s.clipped,
                             )
-                            level_sum = 0.0
+                            meter.reset()
                     continue
 
                 text = message.get("text")

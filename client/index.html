@@ -16,7 +16,11 @@
   <button id="start">Start</button>
   <button id="stop" disabled>Stop</button>
   <p>Mic level <meter id="level" min="-60" max="0" value="-60"></meter></p>
-  <p>WebSocket RTT: <span id="rtt">–</span> ms · playback underruns: <span id="underruns">0</span></p>
+  <p>
+    <label><input type="checkbox" id="dsp" checked /> Browser audio processing (echo cancel, noise suppression, auto gain)</label>
+  </p>
+  <p>WebSocket RTT: <span id="rtt">–</span> ms · capture max gap: <span id="capgap">–</span> ms</p>
+  <p>Playback buffer: <span id="buf">–</span> ms (min <span id="minbuf">–</span> ms) · underruns: <span id="underruns">0</span></p>
   <pre id="log"></pre>
   <script type="module" src="./app.js"></script>
 </body>
