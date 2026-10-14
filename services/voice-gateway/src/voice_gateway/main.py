@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from sahayak_core.config import get_settings
 from sahayak_core.logging import configure_logging
 
+from voice_gateway.api.calls import router as calls_router
 from voice_gateway.api.health import router as health_router
 
 log = structlog.get_logger()
@@ -25,4 +26,6 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title="Sahayak Voice Gateway", version="0.1.0", lifespan=lifespan)
     app.include_router(health_router)
+    app.include_router(calls_router)
+
     return app

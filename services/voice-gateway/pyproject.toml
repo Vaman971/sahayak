@@ -1,11 +1,12 @@
 [project]
-name="voice-gataeway"
+name="voice-gateway"
 version="0.1.0"
 requires-python = ">=3.12"
 dependencies = [
  "sahayak-core",
  "fastapi>=0.115",
- "uvicorn[standard]>=0.30"
+ "uvicorn[standard]>=0.30",
+ "numpy>=2.5.3",
 ]
 
 [tool.uv.sources]
