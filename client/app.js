@@ -69,7 +69,8 @@ async function start() {
   ws.onopen = () => { // opening the websocket connection
     ws.send(JSON.stringify({
       type: "start", sample_rate: SAMPLE_RATE, encoding: "pcm_s16le", frame_ms: FRAME_MS,
-    })); // before sending single byte of voice the browser sends a JSON card saying, "I want to talk at 16Khz, 20 ms frames, in 16-bt PCM format"
+      mode: $("mode").value,
+    })); // before sending single byte of voice the browser sends a JSON card saying, "I want to talk at 16Khz, 20 ms frames, in 16-bit PCM format"
   };
 
   ws.onmessage = (e) => { // this receives ready, with the server attaching call_id and sending back a response: {"type": "ready", "call_id": "ada01acfa7d9", "frame_bytes": 640}
@@ -99,6 +100,17 @@ async function start() {
       $("stop").disabled = false;
     } else if (msg.type === "pong") {
       $("rtt").textContent = (performance.now() - msg.t).toFixed(1); // if server returns pong, te round trp time is set in milliseconds
+    } else if (msg.type === "clear") {
+      player.port.postMessage("clear");
+      log("— barge-in: playback cleared");
+    } else if (msg.type === "state") {
+      $("state").textContent = `${msg.state} (turn ${msg.turn_id})`;
+    } else if (msg.type === "transcript") {
+      log(`you[${msg.turn_id}]: ${msg.text}`);
+    } else if (msg.type === "agent_text") {
+      log(`agent[${msg.turn_id}]: ${msg.text}`);
+    } else if (msg.type === "latency") {
+      log(`latency[${msg.turn_id}] asr ${msg.asr_ms} · llm ${msg.llm_ms} · tts ${msg.tts_ms} · total ${msg.total_ms} ms (+${msg.endpoint_ms} endpoint)`);
     } else {
       log(JSON.stringify(msg));
     }

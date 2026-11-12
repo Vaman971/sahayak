@@ -3,7 +3,13 @@ from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 from voice_gateway.main import create_app
 
-START = {"type": "start", "sample_rate": 16000, "encoding": "pcm_s16le", "frame_ms": 20}
+START = {
+    "type": "start",
+    "sample_rate": 16000,
+    "encoding": "pcm_s16le",
+    "frame_ms": 20,
+    "mode": "echo",
+}
 
 
 def test_echo_reassembles_slit_frames() -> None:
@@ -50,3 +56,14 @@ def test_rejects_audio_before_start() -> None:
         ws.send_bytes(b"\x00" * 640)
         err = ws.receive_json()
         assert err["code"] == "bad_start"
+
+
+def test_agent_mode_smoke() -> None:
+    with TestClient(create_app()) as client, client.websocket_connect("/v1/calls/ws") as ws:
+        ws.send_json({**START, "mode": "agent"})
+        assert ws.receive_json()["type"] == "ready"
+        ws.send_bytes(b"\x00" * 640 * 10)  # 200 ms of silence: no turn should start
+        ws.send_json({"type": "ping", "t": 1.0})
+        ws.send_json({"type": "stop"})
+        assert ws.receive_json() == {"type": "pong", "t": 1.0}
+        assert ws.receive_json()["frames"] == 10

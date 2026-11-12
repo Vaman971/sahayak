@@ -12,7 +12,7 @@ class StartMsg(BaseModel):
     sample_rate: Literal[16000]
     encoding: Literal["pcm_s16le"]
     frame_ms: Literal[20]
-    mode: Literal["echo"] = "echo"
+    mode: Literal["echo", "agent"] = "agent"
 
 
 class StopMsg(BaseModel):
@@ -51,3 +51,35 @@ class ErrorMsg(BaseModel):
     type: Literal["error"] = "error"
     code: str
     message: str
+
+
+class ClearMsg(BaseModel):
+    type: Literal["clear"] = "clear"
+
+
+class StateMsg(BaseModel):
+    type: Literal["state"] = "state"
+    state: str
+    turn_id: int
+
+
+class TranscriptMsg(BaseModel):
+    type: Literal["transcript"] = "transcript"
+    turn_id: int
+    text: str
+
+
+class AgentTextMsg(BaseModel):
+    type: Literal["agent_text"] = "agent_text"
+    turn_id: int
+    text: str
+
+
+class LatencyMsg(BaseModel):
+    type: Literal["latency"] = "latency"
+    turn_id: int
+    endpoint_ms: int
+    asr_ms: float
+    llm_ms: float
+    tts_ms: float
+    total_ms: float

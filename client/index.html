@@ -15,6 +15,14 @@
   <p><strong>Wear headphones</strong>, or the speaker feeds back into the mic.</p>
   <button id="start">Start</button>
   <button id="stop" disabled>Stop</button>
+  <p>
+    Mode
+    <select id="mode">
+      <option value="agent" selected>agent (fakes)</option>
+      <option value="echo">echo</option>
+    </select>
+    · State: <strong id="state">–</strong>
+  </p>
   <p>Mic level <meter id="level" min="-60" max="0" value="-60"></meter></p>
   <p>
     <label><input type="checkbox" id="dsp" checked /> Browser audio processing (echo cancel, noise suppression, auto gain)</label>
