@@ -2,6 +2,13 @@ import logging
 import sys
 
 import structlog
+from structlog.typing import FilteringBoundLogger
+
+
+def get_logger(**initial_values: object) -> FilteringBoundLogger:
+    # Lazy proxy: safe at module import time, resolves after configure_logging() runs.
+    logger: FilteringBoundLogger = structlog.get_logger(**initial_values)
+    return logger
 
 
 def configure_logging(level: str = "INFO", json: bool = False) -> None:

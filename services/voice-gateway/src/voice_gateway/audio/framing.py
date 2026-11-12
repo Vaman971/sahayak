@@ -28,6 +28,16 @@ class FrameAssembler:
         del self._buf[:cut]  # remove the processed frames
         return frames
 
+    def flush_padded(self) -> bytes | None:
+        """Returns the leftover bytes zero-padded to a full frame, or None if empty."""
+        if not self._buf:
+            return None
+
+        frames = bytes(self._buf) + b"\x00" * (self._frame_bytes - len(self._buf))
+
+        self._buf.clear()
+        return frames
+
     @property
     def pending(self) -> int:
         return len(self._buf)

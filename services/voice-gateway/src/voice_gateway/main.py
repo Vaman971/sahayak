@@ -1,15 +1,14 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-import structlog
 from fastapi import FastAPI
 from sahayak_core.config import get_settings
-from sahayak_core.logging import configure_logging
+from sahayak_core.logging import configure_logging, get_logger
 
 from voice_gateway.api.calls import router as calls_router
 from voice_gateway.api.health import router as health_router
 
-log = structlog.get_logger()
+log = get_logger()
 
 
 def create_app() -> FastAPI:

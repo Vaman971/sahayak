@@ -21,6 +21,14 @@ def test_many_frames_in_one_push() -> None:
     assert fa.pending == 1
 
 
+def test_flush_padded() -> None:
+    fa = FrameAssembler(4)
+    fa.push(b"abcdef")
+
+    assert fa.flush_padded() == b"ef\x00\x00"
+    assert fa.flush_padded() is None
+
+
 def test_rejects_non_positive_size() -> None:
     with pytest.raises(ValueError):
         FrameAssembler(0)
