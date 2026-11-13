@@ -27,3 +27,11 @@ class VADPort(Protocol):
     def process(self, frame: bytes) -> VadResult: ...  # TODO
 
     def reset(self) -> None: ...  # TODO
+
+
+class FrameClassifier(Protocol):
+    """Scores one 20ms frame: a value in [0, 1], higher means more likely speech."""
+
+    def score(self, frame: bytes) -> float: ...
+
+    def reset(self) -> None: ...

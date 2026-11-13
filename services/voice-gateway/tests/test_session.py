@@ -5,7 +5,7 @@ import numpy as np
 from voice_gateway.adapters.fakes.asr import ScriptedASR
 from voice_gateway.adapters.fakes.llm import FakeLLM
 from voice_gateway.adapters.fakes.tts import ToneTTS
-from voice_gateway.adapters.threshold_vad import ThresholdVAD
+from voice_gateway.adapters.vad.energy import energy_vad
 from voice_gateway.audio.pcm import float32_to_pcm16
 from voice_gateway.ports.client import AgentText, Notice, StateChanged, TurnLatency, UserTranscript
 from voice_gateway.session.orchestrator import CallSession, SessionConfig
@@ -43,10 +43,11 @@ async def eventually(pred: Callable[[], bool], wait_time: float = 3.0) -> None:
 def make_session(
     client: RecordingClient, *, pace: bool = False, ms_per_char: int = 5
 ) -> CallSession:
+    vad = energy_vad()
     return CallSession(
         call_id="test",
         client=client,
-        vad=ThresholdVAD(),
+        vad=vad,
         asr=ScriptedASR(["claim status batao"], latency_s=0.01),
         llm=FakeLLM(first_token_delay_s=0.01, token_delay_s=0.0),
         tts=ToneTTS(first_audio_delay_s=0.0, ms_per_char=ms_per_char),

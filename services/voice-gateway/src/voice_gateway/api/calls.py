@@ -12,7 +12,7 @@ from sahayak_core.logging import get_logger
 from voice_gateway.adapters.fakes.asr import ScriptedASR
 from voice_gateway.adapters.fakes.llm import FakeLLM
 from voice_gateway.adapters.fakes.tts import ToneTTS
-from voice_gateway.adapters.threshold_vad import ThresholdVAD
+from voice_gateway.adapters.vad.energy import energy_vad
 from voice_gateway.api.protocol import (
     CLIENT_MSG,
     ErrorMsg,
@@ -28,7 +28,7 @@ from voice_gateway.audio.format import PCM16_16K_MONO
 from voice_gateway.audio.framing import FrameAssembler
 from voice_gateway.audio.meter import LevelMeter
 from voice_gateway.audio.recorder import WavRecorder
-from voice_gateway.session.orchestrator import CallSession
+from voice_gateway.session.orchestrator import CallSession, SessionConfig
 
 router = APIRouter()
 log = get_logger()
@@ -149,14 +149,15 @@ async def _run_echo(ws: WebSocket, client: WebSocketClient, tap: _InboundTap) ->
 async def _run_agent(
     ws: WebSocket, client: WebSocketClient, tap: _InboundTap, call_id: str
 ) -> bool:
-
+    vad = energy_vad()
     session = CallSession(
         call_id=call_id,
         client=client,
-        vad=ThresholdVAD(),
+        vad=vad,
         asr=ScriptedASR(),
         llm=FakeLLM(),
         tts=ToneTTS(),
+        config=SessionConfig(endpoint_ms=vad.end_handover_ms),
     )
 
     stopped = False
